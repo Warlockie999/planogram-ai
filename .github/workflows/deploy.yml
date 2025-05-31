@@ -5,26 +5,26 @@ on:
     branches: [main]
     paths:
       - 'docs/**'
-      - '.github/workflows/deploy.yml'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Setup Git identity
+      - name: Copy docs to temp folder
+        run: |
+          mkdir site
+          cp -R docs/* site/
+
+      - name: Switch to gh-pages and deploy
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-
-      - name: Push to gh-pages branch
-        run: |
-          git fetch
-          git switch --orphan gh-pages
-          git rm -rf .
-          cp -R docs/* .
+          git checkout --orphan gh-pages
+          git reset --hard
+          git clean -fdx
+          cp -R site/* .
           git add .
           git commit -m "🚀 Deploy to GitHub Pages"
           git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/Warlockie999/planogram-ai.git
