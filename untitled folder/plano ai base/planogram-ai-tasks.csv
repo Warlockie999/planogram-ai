@@ -1,0 +1,10 @@
+Phase,Task,Label,Status
+Phase 0,Setup React + Vite base,core,Backlog
+Phase 0,"Supabase schema: layouts, products",core,Backlog
+Phase 0,3D shelf + product drag/drop,core,Backlog
+Phase 1,AI layout logic (margin-based),AI,Backlog
+Phase 2,Auto-schedule layouts to calendar,calendar,Backlog
+Phase 3,"Role-based access: merchandiser, manager",roles,Backlog
+Phase 4,Margin trends chart + CSV export,analytics,Backlog
+Phase 5,Reminder email preview + retry UI,email,Backlog
+Deployment,Deploy GitHub Pages + Vercel,core,Backlog

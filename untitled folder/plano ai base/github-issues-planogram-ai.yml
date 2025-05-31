@@ -1,0 +1,60 @@
+- title: "Setup React + Vite base"
+  body: |
+    Initialize Vite with React
+    Configure TailwindCSS
+    Set up Zustand for global state
+  labels:
+    - core
+- title: "Supabase schema: layouts, products"
+  body: |
+    Create tables: layouts, products
+    Seed example layouts and items
+  labels:
+    - core
+- title: "3D shelf + product drag/drop"
+  body: |
+    Use React Three Fiber
+    Implement drag with no overlap constraint
+    Save position to Supabase
+  labels:
+    - core
+- title: "AI layout logic (margin-based)"
+  body: |
+    Add button: “💡 Generate AI Layout”
+    Use margin + tag to suggest shelf position
+  labels:
+    - AI
+- title: "Auto-schedule layouts to calendar"
+  body: |
+    Add `scheduled_date` to layouts
+    Use FullCalendar to display
+    Edge function suggests dates
+  labels:
+    - calendar
+- title: "Role-based access: merchandiser, manager"
+  body: |
+    `user_roles` table
+    Role-based UI visibility
+    RLS on layouts
+  labels:
+    - roles
+- title: "Margin trends chart + CSV export"
+  body: |
+    Chart.js to show margin over time
+    Export layouts to CSV
+  labels:
+    - analytics
+- title: "Reminder email preview + retry UI"
+  body: |
+    Preview reminder before sending
+    Store failed logs
+    Retry failed email sends
+  labels:
+    - email
+- title: "Deploy GitHub Pages + Vercel"
+  body: |
+    Use Vercel for main app
+    Use GitHub Pages for docs
+    Connect `.env.production` and `vercel.json`
+  labels:
+    - core

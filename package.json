@@ -1,0 +1,26 @@
+{
+  "name": "planogram-ai",
+  "version": "1.0.0",
+  "description": "AI-enhanced retail planogram system with 3D builder, scheduling, and automation.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "zustand": "^4.3.6",
+    "@react-three/fiber": "^8.13.6",
+    "@react-three/drei": "^9.56.4",
+    "three": "^0.156.1",
+    "jspdf": "^2.5.1",
+    "html2canvas": "^1.4.1"
+  },
+  "devDependencies": {
+    "vite": "^4.4.9",
+    "eslint": "^8.54.0",
+    "vitest": "^0.34.6"
+  }
+}

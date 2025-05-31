@@ -1,0 +1,79 @@
+{
+  "name": "Planogram AI Development",
+  "columns": [
+    {
+      "name": "Backlog"
+    },
+    {
+      "name": "In Progress"
+    },
+    {
+      "name": "Review"
+    },
+    {
+      "name": "Completed"
+    }
+  ],
+  "issues": [
+    {
+      "title": "Setup React + Vite base",
+      "labels": [
+        "core"
+      ]
+    },
+    {
+      "title": "Supabase schema: layouts, products",
+      "labels": [
+        "core"
+      ]
+    },
+    {
+      "title": "3D shelf + product drag/drop",
+      "labels": [
+        "core"
+      ]
+    },
+    {
+      "title": "AI layout logic (margin-based)",
+      "labels": [
+        "AI"
+      ]
+    },
+    {
+      "title": "Auto-schedule layouts to calendar",
+      "labels": [
+        "calendar"
+      ]
+    },
+    {
+      "title": "Role-based access: merchandiser, manager",
+      "labels": [
+        "roles"
+      ]
+    },
+    {
+      "title": "Activity + product change logging",
+      "labels": [
+        "core"
+      ]
+    },
+    {
+      "title": "Margin trends chart + CSV export",
+      "labels": [
+        "analytics"
+      ]
+    },
+    {
+      "title": "Reminder email preview + retry UI",
+      "labels": [
+        "email"
+      ]
+    },
+    {
+      "title": "Deploy GitHub Pages + Vercel",
+      "labels": [
+        "core"
+      ]
+    }
+  ]
+}

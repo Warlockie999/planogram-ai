@@ -1,0 +1,253 @@
+// Planogram 3D with Undo/Redo, Shelf Metrics, Save/Load, and Full Editing
+
+import React, { Suspense, useRef, useState, useEffect } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { OrbitControls, Html } from '@react-three/drei';
+import create from 'zustand';
+
+const shelfLevels = [0.5, 2, 3.5];
+const shelfWidth = 12;
+const STORAGE_KEY = 'planogram_layout';
+
+const useStore = create((set, get) => ({
+  products: [],
+  history: [],
+  future: [],
+  highlight: null,
+  selected: null,
+
+  pushHistory: () => {
+    const snapshot = JSON.parse(JSON.stringify(get().products));
+    set((state) => ({ history: [...state.history, snapshot], future: [] }));
+  },
+
+  undo: () => {
+    const history = [...get().history];
+    const future = [...get().future];
+    if (history.length === 0) return;
+    const current = JSON.parse(JSON.stringify(get().products));
+    const previous = history.pop();
+    set({ products: previous, history, future: [current, ...future] });
+  },
+
+  redo: () => {
+    const history = [...get().history];
+    const future = [...get().future];
+    if (future.length === 0) return;
+    const current = JSON.parse(JSON.stringify(get().products));
+    const next = future.shift();
+    set({ products: next, history: [...history, current], future });
+  },
+
+  updateProduct: (id, data) => {
+    get().pushHistory();
+    const current = get().products.find(p => p.id === id);
+    const updated = { ...current, ...data };
+    const products = get().products.map(p => p.id === id ? updated : p);
+    set({ products });
+  },
+
+  setSelected: (id) => set({ selected: id }),
+  setHighlight: (id) => set({ highlight: id }),
+
+  addProduct: () => {
+    get().pushHistory();
+    const id = `p${Date.now()}`;
+    const newProduct = {
+      id,
+      name: 'New Item',
+      width: 1,
+      height: 1,
+      depth: 0.5,
+      x: 0,
+      level: 0,
+    };
+    set((state) => ({
+      products: [...state.products, newProduct],
+      selected: id,
+    }));
+  },
+
+  deleteProduct: (id) => {
+    get().pushHistory();
+    set((state) => ({
+      products: state.products.filter(p => p.id !== id),
+      selected: null
+    }));
+  },
+
+  loadLayout: () => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      set({ products: JSON.parse(saved), history: [], future: [] });
+    }
+  },
+
+  saveLayout: () => {
+    const products = get().products;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+  }
+}));
+
+function Product({ product }) {
+  const meshRef = useRef();
+  const { viewport } = useThree();
+  const updateProduct = useStore(state => state.updateProduct);
+  const highlight = useStore(state => state.highlight);
+  const setSelected = useStore(state => state.setSelected);
+  const [dragging, setDragging] = useState(false);
+
+  useFrame(({ mouse }) => {
+    if (dragging && meshRef.current) {
+      const x = (mouse.x * viewport.width) / 2;
+      const half = product.width / 2;
+      const min = -shelfWidth / 2 + half;
+      const max = shelfWidth / 2 - half;
+      const clampedX = Math.min(Math.max(x, min), max);
+
+      const products = useStore.getState().products.filter(p => p.id !== product.id && p.level === product.level);
+      const noOverlap = products.every(o => Math.abs(o.x - clampedX) > (o.width + product.width) / 2);
+
+      if (noOverlap) {
+        updateProduct(product.id, { x: clampedX });
+        useStore.getState().setHighlight(null);
+      } else {
+        useStore.getState().setHighlight(product.id);
+      }
+    }
+  });
+
+  const isHighlighted = highlight === product.id;
+
+  return (
+    <mesh
+      ref={meshRef}
+      position={[product.x, shelfLevels[product.level] + product.height / 2, 0]}
+      onPointerDown={(e) => { e.stopPropagation(); setDragging(true); }}
+      onPointerUp={() => setDragging(false)}
+      onClick={() => setSelected(product.id)}
+      castShadow
+    >
+      <boxGeometry args={[product.width, product.height, product.depth]} />
+      <meshStandardMaterial color={isHighlighted ? 'red' : '#eee'} />
+      <Html position={[0, -product.height / 2 - 0.2, 0]}>
+        <div className={`text-xs px-1 rounded shadow ${isHighlighted ? 'bg-red-100 text-red-700' : 'bg-white'}`}>{product.name}</div>
+      </Html>
+    </mesh>
+  );
+}
+
+function Shelf() {
+  return shelfLevels.map((y, i) => (
+    <mesh key={i} position={[0, y, -0.3]} receiveShadow>
+      <boxGeometry args={[shelfWidth, 0.1, 1]} />
+      <meshStandardMaterial color="#888" />
+    </mesh>
+  ));
+}
+
+function UsageMetrics() {
+  const products = useStore(state => state.products);
+  const usage = [0, 0, 0];
+
+  products.forEach(p => {
+    usage[p.level] += p.width;
+  });
+
+  return (
+    <div className="space-y-2 text-sm">
+      <h3 className="font-bold">Shelf Usage</h3>
+      {usage.map((used, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <span>Level {i}:</span>
+          <div className="w-full h-2 bg-gray-200 rounded">
+            <div
+              className={`h-full rounded ${used / shelfWidth > 0.8 ? 'bg-red-500' : 'bg-green-500'}`}
+              style={{ width: `${(used / shelfWidth) * 100}%` }}
+            ></div>
+          </div>
+          <span>{Math.round((used / shelfWidth) * 100)}%</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SidebarEditor() {
+  const selected = useStore(state => state.selected);
+  const product = useStore(state => state.products.find(p => p.id === selected));
+  const updateProduct = useStore(state => state.updateProduct);
+  const addProduct = useStore(state => state.addProduct);
+  const deleteProduct = useStore(state => state.deleteProduct);
+  const saveLayout = useStore(state => state.saveLayout);
+  const loadLayout = useStore(state => state.loadLayout);
+  const undo = useStore(state => state.undo);
+  const redo = useStore(state => state.redo);
+
+  return (
+    <div className="w-64 p-4 space-y-4 bg-white border-l border-gray-200">
+      <button onClick={addProduct} className="w-full bg-blue-500 text-white py-2 rounded">+ Add Product</button>
+      <div className="flex gap-2">
+        <button onClick={saveLayout} className="w-1/2 bg-green-600 text-white py-1 rounded">💾 Save</button>
+        <button onClick={loadLayout} className="w-1/2 bg-yellow-500 text-white py-1 rounded">📂 Load</button>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={undo} className="w-1/2 bg-gray-400 text-white py-1 rounded">↩ Undo</button>
+        <button onClick={redo} className="w-1/2 bg-gray-600 text-white py-1 rounded">↪ Redo</button>
+      </div>
+      <UsageMetrics />
+      {product ? (
+        <div className="space-y-3">
+          <h3 className="font-bold text-lg">Edit: {product.name}</h3>
+          <label className="block text-sm">Name:
+            <input type="text" value={product.name} onChange={(e) => updateProduct(product.id, { name: e.target.value })} className="w-full border rounded px-1" />
+          </label>
+          <label className="block text-sm">Width:
+            <input type="number" value={product.width} onChange={(e) => updateProduct(product.id, { width: parseFloat(e.target.value) })} className="w-full border rounded px-1" />
+          </label>
+          <label className="block text-sm">Height:
+            <input type="number" value={product.height} onChange={(e) => updateProduct(product.id, { height: parseFloat(e.target.value) })} className="w-full border rounded px-1" />
+          </label>
+          <label className="block text-sm">Shelf Level:
+            <select value={product.level} onChange={(e) => updateProduct(product.id, { level: parseInt(e.target.value) })} className="w-full border rounded px-1">
+              <option value={0}>Low</option>
+              <option value={1}>Mid</option>
+              <option value={2}>Top</option>
+            </select>
+          </label>
+          <button onClick={() => deleteProduct(product.id)} className="w-full mt-2 bg-red-500 text-white py-1 rounded">Delete</button>
+        </div>
+      ) : (
+        <p className="text-sm text-gray-500">Click on a product to edit</p>
+      )}
+    </div>
+  );
+}
+
+export default function Planogram3DBuilder() {
+  const products = useStore((state) => state.products);
+  const load = useStore((state) => state.loadLayout);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  return (
+    <div className="flex h-screen">
+      <div className="flex-grow bg-gray-100">
+        <Canvas shadows camera={{ position: [0, 5, 10], fov: 50 }}>
+          <ambientLight intensity={0.5} />
+          <directionalLight position={[5, 5, 5]} intensity={1} castShadow />
+          <OrbitControls />
+          <Suspense fallback={null}>
+            <Shelf />
+            {products.map((p) => (
+              <Product key={p.id} product={p} />
+            ))}
+          </Suspense>
+        </Canvas>
+      </div>
+      <SidebarEditor />
+    </div>
+  );
+}

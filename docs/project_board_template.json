@@ -1,0 +1,12 @@
+{
+  "name": "Planogram AI Roadmap",
+  "columns": [
+    { "name": "🧠 Backlog" },
+    { "name": "🚧 In Progress" },
+    { "name": "✅ Completed" },
+    { "name": "📦 Ready to Deploy" }
+  ],
+  "labels": [
+    "feature", "bug", "AI", "UX", "integration", "docs", "infra", "high-priority"
+  ]
+}

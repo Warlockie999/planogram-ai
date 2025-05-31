@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Planogram AI Kanban Board</title>
+  <style>
+    body { font-family: sans-serif; background: #f9fafb; margin: 0; padding: 1rem; }
+    h1 { text-align: center; }
+    .kanban { display: flex; gap: 1rem; overflow-x: auto; }
+    .column { flex: 1; background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 1rem; min-width: 250px; }
+    .column h2 { font-size: 1.2rem; margin-top: 0; }
+    .card { background: #e5e7eb; border-radius: 6px; padding: 0.5rem 1rem; margin-bottom: 0.5rem; }
+    .label { font-size: 0.75rem; background: #d1d5db; padding: 0.2rem 0.5rem; border-radius: 3px; display: inline-block; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>🧠 Planogram AI Kanban Board</h1>
+  <div class="kanban">
+    <div class="column">
+      <h2>📥 Backlog</h2>
+      <div class="card">Setup React + Vite base <div class="label">core</div></div>
+      <div class="card">Supabase schema: layouts, products <div class="label">core</div></div>
+      <div class="card">3D shelf + product drag/drop <div class="label">core</div></div>
+      <div class="card">AI layout logic (margin-based) <div class="label">AI</div></div>
+      <div class="card">Auto-schedule layouts to calendar <div class="label">calendar</div></div>
+      <div class="card">Role-based access: merchandiser, manager <div class="label">roles</div></div>
+      <div class="card">Margin trends chart + CSV export <div class="label">analytics</div></div>
+      <div class="card">Reminder email preview + retry UI <div class="label">email</div></div>
+      <div class="card">Deploy GitHub Pages + Vercel <div class="label">core</div></div>
+    </div>
+    <div class="column">
+      <h2>🚧 In Progress</h2>
+    </div>
+    <div class="column">
+      <h2>🧪 Review</h2>
+    </div>
+    <div class="column">
+      <h2>✅ Completed</h2>
+    </div>
+  </div>
+</body>
+</html>
