@@ -1,17 +1,31 @@
-name: Deploy Site
+name: Deploy GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/deploy.yml'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Deploy GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Git identity
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+      - name: Push to gh-pages branch
+        run: |
+          git fetch
+          git switch --orphan gh-pages
+          git rm -rf .
+          cp -R docs/* .
+          git add .
+          git commit -m "🚀 Deploy to GitHub Pages"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/Warlockie999/planogram-ai.git
+          git push -f origin gh-pages
